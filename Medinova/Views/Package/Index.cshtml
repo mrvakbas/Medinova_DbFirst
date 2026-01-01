@@ -1,0 +1,43 @@
+﻿@model List<Package>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_UILayout.cshtml";
+}
+
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="text-center mx-auto mb-5" style="max-width: 500px;">
+            <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">Sağlık Paketleri</h5>
+            <h1 class="display-4">Harika Tıbbi Programlar</h1>
+        </div>
+        <div class="owl-carousel price-carousel position-relative" style="padding: 0 45px 45px 45px;">
+            @foreach (var item in Model)
+            {
+                <div class="bg-light rounded text-center">
+                    <div class="position-relative">
+                        <img class="img-fluid rounded-top" src="~/Templates/Medinova-1.0.0/img/price-1.jpg" alt="">
+                        <div class="position-absolute w-100 h-100 top-50 start-50 translate-middle rounded-top d-flex flex-column align-items-center justify-content-center"
+                             style="background: rgba(29, 42, 77, .8);">
+                            <h3 class="text-white">@item.Title</h3>
+                            <h1 class="display-4 text-white mb-0">
+                                <small class="align-top fw-normal"
+                                       style="font-size: 22px; line-height: 45px;">₺</small>@item.Price<small class="align-bottom fw-normal" style="font-size: 16px; line-height: 40px;">
+                                        /
+                                        Yıl
+                                    </small>
+                                </h1>
+                            </div>
+                        </div>
+                        <div class="text-center py-5">
+                            <p>@item.Item1</p>
+                            <p>@item.Item2</p>
+                            <p>@item.Item3</p>
+                            <p>@item.Item4</p>
+                            <a href="#!" class="btn btn-primary rounded-pill py-3 px-5 my-2">Şimdi Başvur</a>
+                        </div>
+                    </div>
+                }
+        </div>
+    </div>
+</div>

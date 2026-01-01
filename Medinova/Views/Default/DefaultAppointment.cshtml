@@ -1,0 +1,170 @@
+﻿@model Medinova.Models.Appointment
+<div class="container-fluid bg-primary my-5 py-5">
+    <div class="container py-5">
+        <div class="row gx-5">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="mb-4">
+                    <h5 class="d-inline-block text-white text-uppercase border-bottom border-5">Randevu</h5>
+                    <h1 class="display-4">Aileniz İçin Randevu Alın</h1>
+                </div>
+                <p class="text-white mb-5">
+                    Sağlığınız bizim önceliğimizdir. Uzman doktorlarımızdan randevu alarak kendinize ve
+                    ailenize en iyi sağlık hizmetini sunabilirsiniz. Hızlı ve kolay randevu sistemi ile
+                    istediğiniz doktora, istediğiniz tarih ve saatte randevu oluşturabilirsiniz.
+                    Sağlıklı günler dileriz.
+                </p>
+                <a class="btn btn-dark rounded-pill py-3 px-5 me-3" href="#!">Doktor Bul</a>
+                <a class="btn btn-outline-dark rounded-pill py-3 px-5" href="#!">Daha Fazla</a>
+            </div>
+            <div class="col-lg-6">
+                <div class="bg-white text-center rounded p-5">
+                    <h1 class="mb-4">Randevu Oluştur</h1>
+                    <form method="post" action="/Default/MakeAppointment">
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-6">
+                                <label>Bölüm Seçiniz</label>
+                                @Html.DropDownList("DepartmentId", (List<SelectListItem>)ViewBag.departments, "--- Bölüm Seçiniz ---", new { @class = "form-control bg-light border-0", @style = "height: 55px;" })
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label>Doktor Seçiniz</label>
+                                <select id="DoctorId" name="DoctorId" class="form-control bg-light border-0" style="height: 55px;">
+                                    <option selected> --- Önce Bölümü Seçiniz --- </option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-sm-12">
+                                <input type="text" name="FullName" class="form-control bg-light border-0" placeholder="Adınız Soyadınız"
+                                       style="height: 55px;">
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <input type="email" name="email" class="form-control bg-light border-0" placeholder="Email Adresiniz"
+                                       style="height: 55px;">
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <input type="text" name="PhoneNumber" class="form-control bg-light border-0" placeholder="Telefon Numaranız"
+                                       style="height: 55px;">
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="date" id="date" data-target-input="nearest">
+                                    @Html.DropDownList("AppointmentDate", (List<SelectListItem>)ViewBag.dateList, "--- Tarih Seçiniz ---", new { @class = "form-control bg-light border-0", @style = "height: 55px;" })
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="time" id="time" data-target-input="nearest">
+                                    <select id="AppointmentTime" name="AppointmentTime" class="form-control bg-light border-0" style="height: 55px;">
+                                        <option selected> --- Önce Tarih Seçiniz --- </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <button class="btn btn-primary w-100 py-3" type="submit">
+                                        Randevu Oluştur
+                                    </button>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("Login", "Account", new { area = "" })" class="btn btn-secondary w-100 py-3">
+                                        Randevu Almak İçin Giriş Yapın
+                                    </a>
+                                    <small class="text-danger d-block mt-2 text-center">
+                                        * Randevu sistemini kullanabilmek için hasta girişi yapmalısınız.
+                                    </small>
+                                }
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#DepartmentId").change(function () {
+
+            var selectedDepId = $(this).val();
+
+            var doctorDropdown = $("#DoctorId");
+
+            var timeDropdown = $("#AppointmentTime");
+
+            $('#AppointmentDate').val('').trigger('change');
+
+            timeDropdown.empty();
+
+            timeDropdown.append('<option> --- Önce Tarihi Seçin --- </option>');
+
+            $.ajax({
+                url: '/Default/GetDoctorsByDepartmentId',
+                type: 'GET',
+                data: { departmentId: selectedDepId },
+                dataType: 'json',
+                success: function (data) {
+                    doctorDropdown.empty();
+
+                    $.each(data, function (i, doctor) {
+
+                        doctorDropdown.append($('<option> </option>').val(doctor.Value).html(doctor.Text));
+                    });
+                }
+            })
+
+        })
+
+        $("#AppointmentDate").change(function () {
+
+            var selectedDate = $(this).val();
+
+            var selectedDoctorId = $("#DoctorId").val();
+
+            var timeDropdown = $("#AppointmentTime");
+
+            if (selectedDate === '' && selectedDoctorId === '') {
+                timeDropdown.append('<option> --- Önce Doktoru ve Tarihi Seçin --- </option>')
+            }
+
+            $.ajax({
+                url: '/Default/GetAvailableHours',
+                type: 'POST',
+                dataType: 'json',
+                data: { selectedDate: selectedDate, doctorId: selectedDoctorId },
+                success: function (data) {
+
+                    timeDropdown.empty();
+
+                    $.each(data, function (i, item) {
+
+                        var isDisabled = false;
+                        var optionText = item.Time;
+
+                        if (item.IsBooked) {
+                            optionText += " (Dolu)";
+                            isDisabled = true;
+                        }
+
+                        var option = $('<option> </option>').val(item.Time).html(optionText);
+
+                        if (isDisabled) {
+                            option.prop('disabled', true);
+                        }
+
+                        timeDropdown.append(option);
+                        timeDropdown.prop('disabled', false);
+
+                    });
+
+                }
+            });
+
+        });
+
+
+    });
+
+</script>

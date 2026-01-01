@@ -1,0 +1,40 @@
+﻿@model List<Department>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+}
+
+<h2>Bölümler (Departmanlar)</h2>
+
+<style>
+    .icon-circle {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.25rem;
+    }
+</style>
+
+<div class="col-12">
+    <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+            @foreach (var dep in Model)
+            {
+                count++;
+                <div class="d-flex align-items-center py-3 border-bottom">
+                    <div class="icon-circle bg-info text-white me-3">
+                        <i class="fe fe-layers"></i>
+                    </div>
+                    <div class="flex-grow-1 fw-medium text-dark">@count - @dep.Name</div>
+                    <a href="/Admin/Department/Edit/@dep.DepartmentId" class="btn btn-sm btn-outline-info">
+                        Düzenle
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

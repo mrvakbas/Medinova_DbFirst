@@ -1,0 +1,13 @@
+﻿@model List<AboutItem>
+<div class="row g-3 pt-3">
+    @foreach (var item in Model)
+    {
+        <div class="col-sm-3 col-6">
+            <div class="bg-light text-center rounded-circle py-4">
+                <i class="@item.Icon"></i>
+                <h6 class="mb-0"><small>@item.Name</small></h6>
+            </div>
+        </div>
+    }
+</div>
+

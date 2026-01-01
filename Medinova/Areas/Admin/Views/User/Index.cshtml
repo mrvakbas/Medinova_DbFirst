@@ -1,0 +1,38 @@
+﻿@model List<User>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+}
+
+<h2>Kullanıcılar</h2>
+
+<table class="table table-bordered table-hover">
+    <tr>
+        <th>#</th>
+        <td>Ad</td>
+        <td>Soyad</td>
+        <td>Kullanıcı Adı</td>
+        <td>Kullanıcı Rolü</td>
+        <td>İşlemler</td>
+    </tr>
+    @foreach (var item in Model)
+    {
+        count++;
+        <tr>
+            <th>@count</th>
+            <td>@item.FirstName</td>
+            <td>@item.LastName</td>
+            <td>@item.UserName</td>
+            <td>
+                @foreach (var role in item.Roles)
+                {
+                    <span class="badge rounded-pill text-bg-secondary">@role.RoleName</span>
+                }
+            </td>
+            <td>
+                <a href="/Admin/User/AssignRole/@item.UserId" class="btn btn-info">Rol Ata</a>
+            </td>
+        </tr>
+    }
+</table>

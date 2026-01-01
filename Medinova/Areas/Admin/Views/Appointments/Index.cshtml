@@ -1,0 +1,219 @@
+﻿@model List<Appointment>
+@{
+    ViewBag.Title = "Randevu Listesi";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: #1e293b;
+    }
+
+    .text-navy {
+        color: #0f172a;
+    }
+
+    .fw-800 {
+        font-weight: 800;
+    }
+
+    .fw-600 {
+        font-weight: 600;
+    }
+
+    .modern-card {
+        background: white;
+        border-radius: 20px;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .modern-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        }
+
+    .avatar-gradient {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .icon-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+
+    .bg-light-blue {
+        background-color: #eff6ff;
+    }
+
+    .badge-soft-blue {
+        background: #e0e7ff;
+        color: #4338ca;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+    }
+
+    .status-glass {
+        padding: 4px 12px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .status-glass-success {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-glass-secondary {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .btn-action {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 5px;
+        transition: 0.2s;
+        border: none;
+        background: #f8fafc;
+    }
+
+    .btn-view {
+        color: #3b82f6;
+    }
+
+    .btn-edit {
+        color: #f59e0b;
+    }
+
+    .btn-delete {
+        color: #ef4444;
+    }
+
+    .btn-action:hover {
+        background: #1e293b;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .extra-small {
+        font-size: 11px;
+    }
+</style>
+
+<div class="container-fluid py-4" style="background-color: #f4f7fe; min-height: 100vh;">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-7">
+            <h2 class="fw-800 text-navy mb-1" style="letter-spacing: -1px;">Randevu Paneli</h2>
+            <p class="text-secondary fw-500">Klinik operasyonlarını ve hasta trafiğini yönetin.</p>
+        </div>
+        <div class="col-md-5 text-md-end">
+            <div class="d-inline-flex bg-white p-2 rounded-4 shadow-sm border">
+                <div class="stats-box px-3 border-end">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 10px;">Toplam Randevu</small>
+                    <span class="h5 fw-bold text-navy mb-0">@(Model?.Count ?? 0)</span>
+                </div>
+                <div class="stats-box px-3">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 10px;">Bugün</small>
+                    <span class="h5 fw-bold text-primary mb-0">@Model.Count(x => x.AppointmentDate == DateTime.Today)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="appointment-list">
+        @if (Model != null)
+        {
+            foreach (var item in Model)
+            {
+                <div class="modern-card mb-3 transition-all">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-auto h-100 position-absolute start-0 top-0 bottom-0 rounded-start-pill"
+                             style="width: 6px; background: @(item.IsActive == true ? "linear-gradient(#00d2ff, #3a7bd5)" : "linear-gradient(#757f9a, #d7dde8)");">
+                        </div>
+
+                        <div class="card-body ps-4 py-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-2">
+                                    <div class="time-wrapper">
+                                        <div class="display-6 fw-800 text-navy mb-0" style="font-size: 1.5rem;">@item.AppointmentTime</div>
+                                        <div class="text-primary fw-600 small">@(item.AppointmentDate?.ToString("dd MMMM") ?? "-")</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-gradient me-3">
+                                            @(string.IsNullOrEmpty(item.FullName) ? "H" : item.FullName.Substring(0, 1).ToUpper())
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-navy fs-6">@(item.FullName?.ToUpper() ?? "BİLİNMİYOR")</div>
+                                            <div class="text-muted extra-small">Kayıt No: #@item.AppointmentId</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-circle bg-light-blue me-2">
+                                            <i class="fas fa-user-md text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark small">@(item.Doctor?.FullName ?? "-")</div>
+                                            <span class="badge-soft-blue">@(item.Doctor?.Department?.Name ?? "Genel")</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <div class="mb-1"><i class="fas fa-phone-alt text-muted me-2 small"></i><span class="small fw-600">@item.PhoneNumber</span></div>
+                                    @if (item.IsActive == true)
+                                    {
+                                        <span class="status-glass status-glass-success">Aktif</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-glass status-glass-secondary">Beklemede</span>
+                                    }
+                                </div>
+
+                                <div class="col-md-2 text-end">
+                                    <div class="action-group">
+                                        <a href="/Admin/Appointment/Details/@item.AppointmentId" class="btn-action btn-view" title="Detay"><i class="fas fa-eye"></i></a>
+                                        <a href="/Admin/Appointment/Edit/@item.AppointmentId" class="btn-action btn-edit" title="Düzenle"><i class="fas fa-pen"></i></a>
+                                        <button class="btn-action btn-delete" title="Sil"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

@@ -1,0 +1,278 @@
+﻿@model List<Medinova.Models.Appointment>
+
+@{
+    ViewBag.Title = "Randevu Geçmişim";
+    Layout = "~/Areas/Patient/Views/Shared/_PatientLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="fas fa-calendar-check text-primary me-2"></i>Randevu Yönetimi
+            </h2>
+            <p class="text-muted small">Randevularınızı takip edebilir veya aktif olanları iptal edebilirsiniz.</p>
+        </div>
+      
+    </div>
+
+    <div class="row g-3 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm stat-card">
+                <div class="card-body d-flex align-items-center p-4">
+                    <div class="icon-shape bg-soft-primary text-primary me-3">
+                        <i class="fas fa-list-ul fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 small uppercase fw-bold">Toplam</h6>
+                        <h3 class="fw-bold mb-0">@ViewBag.TotalAppointments</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm stat-card">
+                <div class="card-body d-flex align-items-center p-4">
+                    <div class="icon-shape bg-soft-success text-success me-3">
+                        <i class="fas fa-check-circle fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 small uppercase fw-bold">Aktif</h6>
+                        <h3 class="fw-bold mb-0">@ViewBag.ActiveAppointments</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm stat-card">
+                <div class="card-body d-flex align-items-center p-4">
+                    <div class="icon-shape bg-soft-danger text-danger me-3">
+                        <i class="fas fa-times-circle fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 small uppercase fw-bold">İptal</h6>
+                        <h3 class="fw-bold mb-0">@ViewBag.PassiveAppointments</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white py-3 border-bottom-0">
+            <div class="d-flex align-items-center justify-content-between">
+                <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-history me-2 text-secondary"></i>Randevu Geçmişi</h5>
+                <span class="badge bg-light text-dark border fw-normal text-muted">Son @Model.Count Kayıt</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="appointmentTable">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4 border-0">Doktor Bilgisi</th>
+                            <th class="border-0">Randevu Tarihi</th>
+                            <th class="border-0">İletişim</th>
+                            <th class="border-0">Durum</th>
+                            <th class="text-end pe-4 border-0">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr id="row-@item.AppointmentId">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-soft-primary rounded-circle d-flex align-items-center justify-content-center me-3 text-primary">
+                                            <i class="fas fa-user-md"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">@item.Doctor.FullName</div>
+                                            <small class="text-muted">@item.Doctor.Department.Name</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold text-dark small">
+                                            <i class="far fa-calendar-alt me-1 text-primary"></i>
+                                            @(item.AppointmentDate.HasValue ? item.AppointmentDate.Value.ToString("dd MMMM yyyy") : "-")
+                                        </span>
+                                        <small class="text-muted"><i class="far fa-clock me-1"></i> @item.AppointmentTime</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="small text-muted"><i class="fas fa-phone-alt me-1 opacity-50"></i> @item.PhoneNumber</span>
+                                </td>
+                                <td>
+                                    @if (item.IsActive == true)
+                                    {
+                                        <span class="badge rounded-pill badge-soft-success px-3">
+                                            <i class="fas fa-circle f-8 me-1"></i> Aktif
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill badge-soft-secondary px-3">
+                                            <i class="fas fa-circle f-8 me-1"></i> İptal Edildi
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    @if (item.IsActive == true)
+                                    {
+                                        <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="cancelAppointment(@item.AppointmentId)">
+                                            <i class="fas fa-times me-1"></i> İptal Et
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-light btn-sm rounded-pill disabled" disabled>
+                                            <i class="fas fa-ban me-1"></i> Pasif
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-calendar-times fa-4x text-light"></i>
+                    </div>
+                    <h5 class="text-muted fw-normal">Henüz bir randevu kaydınız bulunmuyor.</h5>
+                    <a href="@Url.Action("Create", "Appointments")" class="btn btn-primary mt-2">Hemen Randevu Al</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function cancelAppointment(id) {
+        Swal.fire({
+            title: 'Randevu İptali',
+            text: "Bu randevuyu iptal etmek istediğinizden emin misiniz?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6e7d88',
+            confirmButtonText: 'Evet, İptal Et',
+            cancelButtonText: 'Vazgeç',
+            borderRadius: '15px'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // AJAX isteği başlat
+                $.ajax({
+                    url: '@Url.Action("Cancel", "Appointments", new { area = "Patient" })',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (data) {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Başarılı!',
+                                text: data.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Hata!', data.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Hata!', 'Sunucu ile bağlantı kurulamadı.', 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .bg-soft-primary {
+        background-color: #e8f1ff !important;
+        color: #007bff;
+    }
+
+    .bg-soft-success {
+        background-color: #e6f9ed !important;
+        color: #198754;
+    }
+
+    .bg-soft-danger {
+        background-color: #fff0f1 !important;
+        color: #dc3545;
+    }
+
+    .badge-soft-success {
+        background-color: #e6f9ed;
+        color: #198754;
+    }
+
+    .badge-soft-secondary {
+        background-color: #f2f4f7;
+        color: #6c757d;
+    }
+
+    .stat-card {
+        transition: all 0.3s ease;
+        border-radius: 15px;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+        }
+
+    .icon-shape {
+        width: 54px;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+    }
+
+    .avatar-sm {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
+
+    .table thead th {
+        font-weight: 700;
+        border-top: none;
+        padding: 15px 10px;
+    }
+
+    .table td {
+        padding: 18px 10px;
+    }
+
+    .f-8 {
+        font-size: 8px;
+        vertical-align: middle;
+    }
+
+    .rounded-pill {
+        border-radius: 50px !important;
+    }
+
+    .uppercase {
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+</style>

@@ -1,0 +1,86 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_UILayout.cshtml";
+}
+
+
+<div class="container-fluid pt-5">
+    <div class="container">
+        <div class="text-center mx-auto mb-5" style="max-width: 500px;">
+            <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">Sorularınız mı var?</h5>
+            <h1 class="display-6">Lütfen Bizimle İletişime Geçin</h1>
+        </div>
+        <div class="row g-5 mb-5">
+            <div class="col-lg-4">
+                <div class="bg-light rounded d-flex flex-column align-items-center justify-content-center text-center"
+                     style="height: 200px;">
+                    <div class="d-flex align-items-center justify-content-center bg-primary rounded-circle mb-4"
+                         style="width: 100px; height: 70px; transform: rotate(-15deg);">
+                        <i class="fa fa-2x fa-location-arrow text-white" style="transform: rotate(15deg);"></i>
+                    </div>
+                    <h6 class="mb-0">Esenyurt / İSTANBUL</h6>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="bg-light rounded d-flex flex-column align-items-center justify-content-center text-center"
+                     style="height: 200px;">
+                    <div class="d-flex align-items-center justify-content-center bg-primary rounded-circle mb-4"
+                         style="width: 100px; height: 70px; transform: rotate(-15deg);">
+                        <i class="fa fa-2x fa-phone text-white" style="transform: rotate(15deg);"></i>
+                    </div>
+                    <h6 class="mb-0">0212 212 12 12</h6>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="bg-light rounded d-flex flex-column align-items-center justify-content-center text-center"
+                     style="height: 200px;">
+                    <div class="d-flex align-items-center justify-content-center bg-primary rounded-circle mb-4"
+                         style="width: 100px; height: 70px; transform: rotate(-15deg);">
+                        <i class="fa fa-2x fa-envelope-open text-white" style="transform: rotate(15deg);"></i>
+                    </div>
+                    <h6 class="mb-0"> medinova@hotmail.com</h6>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12" style="height: 500px;">
+                <div class="position-relative h-100">
+                    <iframe class="position-relative w-100 h-100"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2459.253612274587!2d29.000262908611365!3d41.01960942488508!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cab82bea99445f%3A0x6ed7f4baceb4476c!2sK%C4%B1z%20Kulesi!5e0!3m2!1str!2str!4v1767106243125!5m2!1str!2str"
+                            frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false"
+                            tabindex="0"></iframe>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center position-relative" style="margin-top: -200px; z-index: 1;">
+            <div class="col-lg-8">
+                <div class="bg-white rounded p-5 m-5 mb-0">
+                    <form method="post" action="/Contact/Index/">
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-6">
+                                <input type="text" name="NameSurname" id="NameSurname" class="form-control bg-light border-0" placeholder="Adınız"
+                                       style="height: 55px;">
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <input type="email"name="Email" id="Email" class="form-control bg-light border-0" placeholder="E-posta Adresiniz"
+                                       style="height: 55px;">
+                            </div>
+                            <div class="col-12">
+                                <input type="text" name="Subject" id="Subject" class="form-control bg-light border-0" placeholder="Konu"
+                                       style="height: 55px;">
+                            </div>
+                            <div class="col-12">
+                                <textarea name="MessageContent" id="MessageContent" class="form-control bg-light border-0" rows="5"
+                                          placeholder="Mesajınız"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-primary w-100 py-3" type="submit">Mesaj Gönder</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

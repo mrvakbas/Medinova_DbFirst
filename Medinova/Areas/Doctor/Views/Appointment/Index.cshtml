@@ -1,0 +1,619 @@
+﻿@model List<Medinova.Models.Appointment>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Doctor/Views/Shared/_DoctorLayout.cshtml";
+}
+
+<!-- FontAwesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="appointment-container">
+    <!-- Header Section -->
+    <div class="appointment-header">
+        <div class="header-content">
+            <h1 class="page-title">📅 Randevularım</h1>
+            <p class="page-subtitle">Hastalarınızın randevu bilgileri</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-primary" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> Yenile
+            </button>
+        </div>
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Toplam Randevu</h3>
+                <p class="stat-number">@ViewBag.TotalAppointments</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Aktif Randevu</h3>
+                <p class="stat-number">@ViewBag.ActiveAppointments</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Pasif</h3>
+                <p class="stat-number">@ViewBag.CompletedAppointments</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search -->
+    <div class="filter-section">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Hasta adı veya email ara..." class="search-input">
+        </div>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">Tüm Randevular</button>
+            <button class="filter-btn" data-filter="active">Aktif</button>
+            <button class="filter-btn" data-filter="passive">Pasif</button>
+        </div>
+    </div>
+
+    <!-- Appointments Table -->
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="appointments-wrapper">
+            <div class="table-responsive">
+                <table class="appointments-table">
+                    <thead>
+                        <tr>
+                            <th>Hasta Adı</th>
+                            <th>Telefon</th>
+                            <th>E-Mail</th>
+                            <th>Tarih</th>
+                            <th>Saat</th>
+                            <th>Durum</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                <tbody id="appointmentTableBody">
+                    @foreach (var appointment in Model)
+                    {
+                        <tr class="appointment-row"
+                            data-status="@(appointment.IsActive == true ? "active" : "passive")"
+                            data-patient="@appointment.FullName"
+                            data-email="@appointment.Email">
+                            <td class="patient-name">
+                                <div class="patient-info">
+                                    <div class="patient-avatar">
+                                        @appointment.FullName.First()
+                                    </div>
+                                    <div>
+                                        <strong>@appointment.FullName</strong>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="phone-badge">
+                                    <i class="fas fa-phone"></i> @appointment.PhoneNumber
+                                </span>
+                            </td>
+                            <td>
+                                <a href="mailto:@appointment.Email" class="email-link">@appointment.Email</a>
+                            </td>
+                            <td>
+                                <span class="date-badge">
+                                    <i class="fas fa-calendar"></i> @(appointment.AppointmentDate.HasValue ? appointment.AppointmentDate.Value.ToString("dd/MM/yyyy") : "")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="time-badge">
+                                    <i class="fas fa-clock"></i> @(appointment.AppointmentTime != null ? appointment.AppointmentTime.ToString() : "")
+                                </span>
+                            </td>
+                            <td>
+                                @if (appointment.IsActive == true)
+                                {
+                                    <span class="status-badge status-active">
+                                        <i class="fas fa-check-circle"></i> Aktif
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-passive">
+                                        <i class="fas fa-times-circle"></i> Pasif
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="@Url.Action("Details", "Appointment", new { area = "Doctor", id = appointment.AppointmentId })"
+                                       class="btn-action btn-view" title="Detaylar">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    @if (appointment.IsActive == true)
+                                    {
+                                        <button class="btn-action btn-cancel" onclick="makePassive(@appointment.AppointmentId)" title="Pasif Yap">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="btn-action" style="background: #f1f1f1; color: #ccc; cursor: not-allowed;" title="İşlem Yapılamaz">
+                                            <i class="fas fa-ban"></i>
+                                        </span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <h3>Randevu Yok</h3>
+            <p>Şu anda herhangi bir randevunuz bulunmamaktadır.</p>
+        </div>
+    }
+</div>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .appointment-container {
+        padding: 30px 0;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .appointment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        padding: 0 20px;
+    }
+
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+        font-size: 14px;
+        color: #888;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+        padding: 0 20px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 28px;
+    }
+
+    .stat-content h3 {
+        font-size: 14px;
+        color: #888;
+        font-weight: 600;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+
+    .stat-number {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    /* Filter Section */
+    .filter-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+        padding: 0 20px;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        position: relative;
+        flex: 1;
+        min-width: 250px;
+    }
+
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 16px;
+        }
+
+    .search-input {
+        width: 100%;
+        padding: 12px 16px 12px 40px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+    .filter-buttons {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 10px 20px;
+        border: 2px solid #e0e0e0;
+        background: white;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #666;
+    }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: white;
+        }
+
+    /* Table */
+    .appointments-wrapper {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        padding: 0 20px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .appointments-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .appointments-table thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .appointments-table th {
+            padding: 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .appointments-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+            color: #333;
+        }
+
+    .appointment-row:hover {
+        background: #f8f9fa;
+    }
+
+    .patient-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .patient-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+    .phone-badge, .date-badge, .time-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        background: #f0f0f0;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #666;
+    }
+
+    .email-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .email-link:hover {
+            text-decoration: underline;
+        }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-completed {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-start;
+    }
+
+    .btn-action {
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-view {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+        .btn-view:hover {
+            background: #1976d2;
+            color: white;
+        }
+
+    .btn-complete {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+        .btn-complete:hover {
+            background: #388e3c;
+            color: white;
+        }
+
+    .btn-cancel {
+        background: #ffebee;
+        color: #d32f2f;
+    }
+
+        .btn-cancel:hover {
+            background: #d32f2f;
+            color: white;
+        }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 80px 40px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .empty-icon {
+        font-size: 64px;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+        font-size: 24px;
+        color: #1a1a1a;
+        margin-bottom: 10px;
+    }
+
+    .empty-state p {
+        color: #888;
+        font-size: 14px;
+    }
+</style>
+
+<script>
+    // Refresh Button
+    document.getElementById('refreshBtn').addEventListener('click', function() {
+        location.reload();
+    });
+
+    // Search Functionality
+    document.getElementById('searchInput').addEventListener('keyup', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.appointment-row');
+
+        rows.forEach(row => {
+            const patient = row.dataset.patient.toLowerCase();
+            const email = row.dataset.email.toLowerCase();
+
+            if (patient.includes(searchTerm) || email.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Filter Functionality
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            // Aktif buton görselini değiştir
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const filter = this.dataset.filter; // 'all', 'active' veya 'passive' gelir
+            const rows = document.querySelectorAll('.appointment-row');
+
+            rows.forEach(row => {
+                const rowStatus = row.dataset.status; // Satırdaki durum (active/passive)
+
+                if (filter === 'all') {
+                    row.style.display = '';
+                } else {
+                    // Filtre değeri ile satırın statüsü tam eşleşmeli
+                    row.style.display = (rowStatus === filter) ? '' : 'none';
+                }
+            });
+        });
+    });
+
+    // Mark as Completed
+    function markAsCompleted(appointmentId) {
+        if (confirm('Bu randevuyu tamamlandı olarak işaretlemek istediğinize emin misiniz?')) {
+            $.post('@Url.Action("MarkAsCompleted", "Appointment", new { area = "Doctor" })/' + appointmentId,
+                function(result) {
+                    if (result.success) {
+                        alert(result.message);
+                        location.reload();
+                    } else {
+                        alert('Hata: ' + result.message);
+                    }
+                });
+        }
+    }
+
+    // Cancel Appointment
+    function makePassive(appointmentId) {
+        if (confirm('Bu randevuyu pasif duruma getirmek istediğinize emin misiniz?')) {
+            $.post('@Url.Action("Cancel", "Appointment", new { area = "Doctor" })/' + appointmentId,
+                function(result) {
+                    if (result.success) {
+                        alert('Randevu pasif hale getirildi.');
+                        location.reload();
+                    } else {
+                        alert('Hata: ' + result.message);
+                    }
+                });
+        }
+    }
+</script>

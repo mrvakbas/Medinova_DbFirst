@@ -1,0 +1,107 @@
+﻿@model List<Medinova.Models.Testimonial>
+@{
+    ViewBag.Title = "Referans Yönetimi";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row mb-5 align-items-center">
+        <div class="col">
+            <h2 class="display-6 fw-bold text-dark mb-0">Referanslar</h2>
+        </div>
+        <div class="col-auto">
+            <div class="badge bg-primary bg-opacity-10 text-primary px-4 py-3 rounded-pill shadow-sm" style="font-size: 0.9rem;">
+                <i class="fas fa-users me-2"></i>Toplam @Model.Count Kayıtlı Görüş
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <div class="bg-light rounded-5 p-5 border border-2 border-dashed">
+                    <i class="fas fa-quote-right fa-4x text-muted mb-3 opacity-25"></i>
+                    <h4 class="text-secondary">Henüz bir paylaşım yapılmadı.</h4>
+                </div>
+            </div>
+        }
+        else
+        {
+            foreach (var item in Model)
+            {
+                <div class="col-xl-4 col-md-6">
+                    <div class="testimonial-box bg-white rounded-5 shadow-sm p-4 h-100 border-0 position-relative">
+                        <div class="profile-header d-flex align-items-center mb-4">
+                            <div class="image-box position-relative">
+                                <img src="@item.ImageUrl" class="rounded-4 shadow" style="width: 80px; height: 80px; object-fit: cover;" alt="@item.NameSurname" />
+                                <div class="status-indicator bg-success"></div>
+                            </div>
+                            <div class="ms-3">
+                                <h5 class="mb-1 fw-bold text-dark">@item.NameSurname</h5>
+                                <p class="mb-0 text-muted small fw-semibold text-uppercase">@item.Degree</p>
+                            </div>
+                        </div>
+
+                        <div class="comment-bubble bg-light rounded-4 p-3 mb-4 position-relative">
+                            <i class="fas fa-quote-left text-primary opacity-25 fa-2x position-absolute" style="top: -10px; left: 10px;"></i>
+                            <p class="mb-0 text-secondary" style="font-size: 0.95rem; line-height: 1.6;">
+                                @item.Comment
+                            </p>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
+                            <div class="stars text-warning small">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                            <div class="actions">
+                                <a href="/Admin/Testimonial/Update/@item.TestimonialId" class="btn btn-outline-dark btn-sm rounded-3 me-1 border-0">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="/Admin/Testimonial/DeleteTestimonial/@item.TestimonialId" class="btn btn-outline-danger btn-sm rounded-3 border-0">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<style>
+    .testimonial-box {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid #f1f3f5 !important;
+    }
+
+        .testimonial-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
+        }
+
+    .comment-bubble {
+        min-height: 100px;
+    }
+
+    .rounded-4 {
+        border-radius: 1.25rem !important;
+    }
+
+    .rounded-5 {
+        border-radius: 2rem !important;
+    }
+
+    .status-indicator {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        border: 3px solid #fff;
+        border-radius: 50%;
+        bottom: 5px;
+        right: 5px;
+    }
+</style>

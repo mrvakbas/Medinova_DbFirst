@@ -1,0 +1,26 @@
+﻿@model List<AboutItem>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+}
+
+<h2>Hakkımızda Seçenekleri</h2>
+
+<table class="table table-bordered table-hover">
+    <tr>
+        <th>#</th>
+        <th>İkon</th>
+        <th>Başlık</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        count++;
+        <tr>
+            <th>@count</th>
+            <td><i class="@item.Icon"></i></td>
+            <td>@item.Name</td>
+        </tr>
+    }
+</table>
+

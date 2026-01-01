@@ -1,0 +1,108 @@
+﻿@model List<Doctor>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+}
+
+<h2>Doktorlar</h2>
+
+<div class="row">
+    <div class="col">
+        <table class="table table-bordered table-hover">
+            <tr>
+                <th>#</th>
+                <th>Doktor Görsel</th>
+                <th>Doktor Adı</th>
+                <th>Doktor Bölümü</th>
+                <th>Doktor Açıklaması</th>
+                <th>İşlemler</th>
+            </tr>
+            @foreach (var item in Model)
+            {
+                count++;
+                <tr>
+                    <th>@count</th>
+                    <td> <img src="@item.ImageUrl" style="width: 75px; height:75px; object-fit: cover;" /> </td>
+                    <td>@item.FullName</td>
+                    <td>@item.Department.Name</td>
+                    <td>@item.Description</td>
+                    <td>
+                        <a href="/Admin/Doctors/UpdateDoctor/@item.DoctorId" class="btn btn-outline-success">Güncelle</a>
+                        <a href="" class="btn btn-outline-danger btn-delete" data-id="@item.DoctorId" data-name="@item.FullName">
+                            Sil
+                        </a>
+                    </td>
+                </tr>
+            }
+        </table>
+        <a href="/Admin/Doctors/CreateDoctor" class="btn btn-outline-primary"><i class="fa fa-plus"></i> Doktor Ekle</a>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.btn-delete').click(function (e) {
+            e.preventDefault();
+
+            var doctorId = $(this).data('id');
+            var doctorName = $(this).data('name');
+
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: doctorName + " isimli doktoru silmek istediğinize emin misiniz?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Evet, Sil!',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/Admin/Doctors/DeleteDoctor/" + doctorId;
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+
+        var message = '';
+        var iconType = 'success';
+
+        if ('@TempData["DeleteSuccess"]' !== '') {
+            message = '@TempData["DeleteSuccess"]';
+            iconType = 'error';
+        } else if ('@TempData["EditSuccess"]' !== '') {
+            message = '@TempData["EditSuccess"]';
+            iconType = 'info';
+        } else if ('@TempData["CreateSuccess"]' !== '') {
+            message = '@TempData["CreateSuccess"]';
+            iconType = 'success';
+        }
+
+        if (message) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+
+            Toast.fire({
+                icon: iconType, 
+                title: message
+            });
+        }
+    });
+</script>

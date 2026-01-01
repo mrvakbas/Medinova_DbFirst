@@ -1,0 +1,162 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_UILayout.cshtml";
+}
+<style>
+    .modal-content {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #13C5DD 0%, #13C5DD 100%);
+        border-radius: 15px 15px 0 0;
+        border: none;
+    }
+
+    .modal-title {
+        font-weight: 600;
+        font-size: 1.3rem;
+    }
+
+    .btn-close {
+        filter: brightness(0) invert(1);
+    }
+
+    .response-content {
+        background: #f8f9ff;
+        border-left: 4px solid #13C5DD;
+        border-radius: 8px;
+        padding: 20px;
+        line-height: 1.8;
+        font-size: 15px;
+    }
+
+    .loading-spinner {
+        text-align: center;
+        padding: 30px;
+    }
+
+    .spinner-border {
+        width: 50px;
+        height: 50px;
+        color: #13C5DD;
+    }
+</style>
+
+@Html.Action("HeroSection")
+
+@Html.Action("AboutSection")
+
+@Html.Action("FeatureSection")
+
+@Html.Action("DefaultAppointment")
+
+@Html.Action("PackageSection")
+
+@Html.Action("DoctorListSection")
+
+<div class="container-fluid bg-primary my-5 py-5">
+    <div class="container py-5">
+        <div class="text-center mx-auto mb-5" style="max-width: 700px;">
+            <h5 class="d-inline-block text-white text-uppercase border-bottom border-5 mb-4">AI Sağlık Asistanı</h5>
+            <h1 class="display-6 mb-4 text-white">Sağlık Sorunlarınız İçin Yardım Alın</h1>
+            <h5 class="text-white fw-normal mb-4">
+                Yapay zeka destekli sağlık asistanımız, belirtilerinizi anlayarak size doğru rehberlik sağlamak için burada.
+                Sağlık endişelerinizi yazın ve anında destek alın.
+            </h5>
+            <p class="text-white-50 small">
+                <strong>Not:</strong> Bu asistan tıbbi tavsiye yerine geçmez. Ciddi durumlar için lütfen bir doktor ile iletişime geçin.
+            </p>
+        </div>
+        <div class="mx-auto" style="width: 100%; max-width: 600px;">
+            <div class="input-group">
+                <input type="text"
+                       id="healthQuestion"
+                       class="form-control border-primary"
+                       placeholder="Belirtilerinizi veya sağlık sorununuzu açıklayın..."
+                       style="height: 60px; font-size: 16px;">
+                <button class="btn btn-dark border-0" id="healthAdviceBtn">Sor</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="responseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-heartbeat"></i> Asistan Cevabı
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="loading-spinner" id="loadingSpinner">
+                    <div class="spinner-border" role="status"></div>
+                    <p class="mt-3 text-muted">Yanıt hazırlanıyor...</p>
+                </div>
+                <div class="response-content" id="responseContent" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Action("TestimonialSection")
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    const modal = new bootstrap.Modal(document.getElementById('responseModal'));
+
+    document.getElementById('healthAdviceBtn').addEventListener('click', async () => {
+        const input = document.getElementById('healthQuestion');
+        const message = input.value.trim();
+
+        if (!message) {
+            alert('Lütfen bir soru yazınız');
+            return;
+        }
+
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const responseContent = document.getElementById('responseContent');
+
+        modal.show();
+
+        loadingSpinner.style.display = 'block';
+        responseContent.style.display = 'none';
+
+        try {
+            const response = await fetch('/Default/GetHealthAdvice', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+
+            const result = await response.json();
+
+            loadingSpinner.style.display = 'none';
+
+            if (result.success) {
+                responseContent.innerHTML = result.response;
+                responseContent.style.display = 'block';
+                input.value = '';
+            } else {
+                responseContent.innerHTML = `<div class="alert alert-danger"><strong>Hata:</strong> ${result.error}</div>`;
+                responseContent.style.display = 'block';
+            }
+        } catch (error) {
+            loadingSpinner.style.display = 'none';
+            responseContent.innerHTML = `<div class="alert alert-danger"><strong>Bağlantı Hatası:</strong> ${error.message}</div>`;
+            responseContent.style.display = 'block';
+            console.error('Hata:', error);
+        }
+    });
+
+    document.getElementById('healthQuestion').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('healthAdviceBtn').click();
+        }
+    });
+</script>

@@ -1,0 +1,51 @@
+﻿@model Medinova.Models.Doctor
+
+@{
+    ViewBag.Title = "UpdateDoctor";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container">
+    <h2>Doktor Güncelle</h2>
+    <hr />
+
+    <form action="/Admin/Doctors/UpdateDoctor" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="DoctorId" value="@Model.DoctorId" />
+
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label>Ad Soyad</label>
+                <input type="text" name="Fullname" value="@Model.FullName" class="form-control" required />
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Departman</label>
+                <select name="DepartmentId" class="form-control" required>
+                    @foreach (var dept in (List<Medinova.Models.Department>)ViewBag.Departments)
+                    {
+                        <option value="@dept.DepartmentId" @(dept.DepartmentId == Model.DepartmentId ? "selected" : "")>
+                            @dept.Name
+                        </option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group mt-3">
+            <label>Resim URL</label>
+            <input type="text" name="ImageUrl" value="@Model.ImageUrl" class="form-control" />
+        </div>
+
+        <div class="form-group mt-3">
+            <label>Açıklama</label>
+            <textarea name="Description" class="form-control" rows="4">@Model.Description</textarea>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Değişiklikleri Kaydet</button>
+            <a href="/Admin/Doctors/Index" class="btn btn-secondary">Vazgeç</a>
+        </div>
+    </form>
+</div>

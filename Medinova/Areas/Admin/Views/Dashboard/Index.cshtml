@@ -1,0 +1,1013 @@
+﻿@model Medinova.Areas.Admin.Data.DashboardViewModel
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    :root {
+        --primary: #667eea;
+        --primary-dark: #764ba2;
+        --success: #00b894;
+        --warning: #f39c12;
+        --danger: #e74c3c;
+        --light: #f8f9fa;
+        --dark: #2c3e50;
+        --border: #e0e0e0;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border-left: 5px solid var(--primary);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+            .stat-card:hover::before {
+                top: -20%;
+                right: -20%;
+            }
+
+        .stat-card.blue {
+            border-left-color: #0984e3;
+        }
+
+        .stat-card.green {
+            border-left-color: #00b894;
+        }
+
+        .stat-card.orange {
+            border-left-color: #f39c12;
+        }
+
+        .stat-card.purple {
+            border-left-color: #6c5ce7;
+        }
+
+    .stat-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+
+    .stat-number {
+        font-size: 42px;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 12px;
+    }
+
+    .stat-link {
+        font-size: 13px;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s ease;
+    }
+
+        .stat-link:hover {
+            gap: 10px;
+            color: var(--primary-dark);
+        }
+
+    .chart-section {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid var(--light);
+    }
+
+    .chart-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .chart-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .refresh-btn {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .refresh-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+    .weekly-trend {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 380px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.02) 0%, rgba(118, 75, 162, 0.02) 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .legend-grid {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
+        padding: 15px;
+        background: var(--light);
+        border-radius: 10px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: var(--dark);
+        font-weight: 500;
+    }
+
+    .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+    }
+
+    .stats-box {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-top: 25px;
+    }
+
+    .stat-item {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        transition: all 0.3s ease;
+    }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+    .stat-item-label {
+        font-size: 11px;
+        opacity: 0.9;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-item-value {
+        font-size: 32px;
+        font-weight: 800;
+    }
+
+    .tip-box {
+        background: linear-gradient(135deg, #fff9e6 0%, #ffe6cc 100%);
+        border-left: 4px solid var(--warning);
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 12px;
+        color: #664d00;
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .department-chart-container {
+        position: relative;
+        height: 380px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.02) 0%, rgba(118, 75, 162, 0.02) 100%);
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .department-stats {
+        max-height: 380px;
+        overflow-y: auto;
+    }
+
+    .dept-stat-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+        transition: all 0.2s ease;
+    }
+
+        .dept-stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .dept-stat-item:hover {
+            background: var(--light);
+            padding-left: 10px;
+            padding-right: 10px;
+            border-radius: 8px;
+        }
+
+    .dept-color-box {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+
+    .dept-name {
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 4px;
+    }
+
+    .dept-count {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .info-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 30px;
+        margin-top: 10px;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .info-card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--light);
+        transition: all 0.2s ease;
+    }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-item:hover {
+            background: var(--light);
+            padding-left: 10px;
+            border-radius: 8px;
+        }
+
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 12px;
+        flex-shrink: 0;
+        font-size: 18px;
+    }
+
+    .info-content {
+        flex-grow: 1;
+    }
+
+    .info-name {
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 3px;
+    }
+
+    .info-subtitle {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+        margin-left: auto;
+    }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+
+    .department-stats::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .department-stats::-webkit-scrollbar-track {
+        background: var(--light);
+        border-radius: 10px;
+    }
+
+    .department-stats::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 10px;
+    }
+
+        .department-stats::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+</style>
+
+<div class="stats-grid">
+    <div class="stat-card blue">
+        <div class="stat-content">
+            <div class="stat-label">👨‍⚕️ Toplam Doktor</div>
+            <div class="stat-number">@ViewBag.DoctorCount</div>
+            <a href="/Admin/Doctors/Index" class="stat-link">Detaylı İncele →</a>
+        </div>
+    </div>
+
+    <div class="stat-card green">
+        <div class="stat-content">
+            <div class="stat-label">🏥 Toplam Bölüm</div>
+            <div class="stat-number">@ViewBag.DepartmentCount</div>
+            <a href="/Admin/Department/Index" class="stat-link">Detaylı İncele →</a>
+        </div>
+    </div>
+
+    <div class="stat-card orange">
+        <div class="stat-content">
+            <div class="stat-label">👥 Toplam Kullanıcı</div>
+            <div class="stat-number">@ViewBag.UserCount</div>
+            <a href="/Admin/User/Index" class="stat-link">Detaylı İncele →</a>
+        </div>
+    </div>
+
+    <div class="stat-card purple">
+        <div class="stat-content">
+            <div class="stat-label">📅 Toplam Randevu</div>
+            <div class="stat-number">@ViewBag.AppointmentCount</div>
+            <a href="/Admin/Appointments/Index" class="stat-link">Detaylı İncele →</a>
+        </div>
+    </div>
+</div>
+
+<div class="chart-section mt-4">
+    <div class="chart-header">
+        <div class="chart-title">
+            <div class="chart-icon">📊</div>
+            Haftalık Randevu Trendi
+        </div>
+        <button class="refresh-btn" onclick="location.reload()">🔄 Yenile</button>
+    </div>
+
+    <div class="legend-grid">
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #667eea;"></div>
+            <span>Toplam Randevu</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #00b894;"></div>
+            <span>Tamamlanan</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #f39c12;"></div>
+            <span>Bekleniyor</span>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="weeklyChart"></canvas>
+    </div>
+
+    <div class="stats-box">
+        <div class="stat-item">
+            <div class="stat-item-label">Toplam Randevu</div>
+            <div class="stat-item-value" id="totalAppointments">0</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-item-label">Günlük Ortalama</div>
+            <div class="stat-item-value" id="averageAppointments">0</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-item-label">En Yoğun Gün</div>
+            <div class="stat-item-value" id="busyDay">-</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-item-label">En Sakin Gün</div>
+            <div class="stat-item-value" id="quietDay">-</div>
+        </div>
+    </div>
+
+    <div class="tip-box">
+        💡 Grafiğin üzerine geldiğinde detaylı bilgi görebilirsiniz
+    </div>
+</div>
+
+<div class="chart-section">
+    <div class="chart-header">
+        <div class="chart-title">
+            <div class="chart-icon">🏥</div>
+            Bölüm Başına Randevu Dağılımı
+        </div>
+    </div>
+
+    <div class="chart-grid">
+        <div class="chart-container">
+            <canvas id="departmentChart"></canvas>
+        </div>
+
+        <div class="department-stats" id="departmentStats">
+        </div>
+    </div>
+</div>
+
+<div class="info-cards-grid">
+    <div class="info-card">
+        <div class="info-card-title">
+            <span>👨‍⚕️</span> Son Eklenen Doktorlar
+        </div>
+        @foreach (var doc in Model.LastDoctors)
+        {
+            <div class="info-item">
+                <div class="info-icon">👤</div>
+                <div class="info-content">
+                    <div class="info-name">@doc.FullName</div>
+                    <div class="info-subtitle">@doc.Department.Name</div>
+                </div>
+                <button class="btn-edit" onclick="window.location='/Admin/Doctors/EditDoctor/@doc.DoctorId'">Düzenle</button>
+            </div>
+        }
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-title">
+            <span>🏢</span> Son Eklenen Bölümler
+        </div>
+        @foreach (var dep in Model.AllDepartments)
+        {
+            <div class="info-item">
+                <div class="info-icon">📌</div>
+                <div class="info-content">
+                    <div class="info-name">@dep.Name</div>
+                </div>
+                <button class="btn-edit" onclick="window.location='/Admin/Department/Edit/@dep.DepartmentId'">Düzenle</button>
+            </div>
+        }
+    </div>
+</div>
+
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-magic me-2"></i>ML.NET : 3 Aylık Randevu Tahmini
+                </h6>
+                <small class="text-muted">ML.NET Time Series (SSA)</small>
+            </div>
+            <div class="card-body">
+                <div class="chart-area" style="height: 400px;">
+                    <canvas id="mlForecastChart"></canvas>
+                </div>
+
+                <!-- İstatistik Kartları -->
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="stat-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div class="stat-item-label">Ortalama Tahmin</div>
+                            <div class="stat-item-value" id="mlAverage">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <div class="stat-item-label">En Yoğun Gün</div>
+                            <div class="stat-item-value" id="mlMaxDay" style="font-size: 20px;">-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <div class="stat-item-label">En Sakin Gün</div>
+                            <div class="stat-item-value" id="mlMinDay" style="font-size: 20px;">-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                            <div class="stat-item-label">Toplam Tahmin</div>
+                            <div class="stat-item-value" id="mlTotal">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 small text-muted">
+                    <i class="fas fa-info-circle me-1"></i> Bu grafik, geçmiş @ViewBag.AppointmentCount randevu verisini analiz ederek önümüzdeki 90 günün olası yoğunluğunu göstermektedir.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+<script>
+// VERİLERİ ÖNCE TANIMLA
+const weeklyData = @Html.Raw(Json.Encode(ViewBag.WeeklyAppointments));
+const departmentData = @Html.Raw(Json.Encode(ViewBag.AppointmentsByDepartment ?? new List<object>()));
+
+let chartInstance = null;
+let departmentChart = null;
+
+function initWeeklyChart() {
+    const ctx = document.getElementById('weeklyChart');
+    if (!ctx) {
+        console.warn("weeklyChart bulunamadı");
+        return;
+    }
+
+    const labels = weeklyData.map(d => d.Day + '\n' + d.Date);
+    const totalData = weeklyData.map(d => d.Count);
+    const completedData = weeklyData.map(d => d.Completed);
+    const pendingData = weeklyData.map(d => d.Pending);
+
+    if (chartInstance) chartInstance.destroy();
+
+    chartInstance = new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Toplam Randevu',
+                    data: totalData,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 8
+                },
+                {
+                    label: 'Tamamlanan',
+                    data: completedData,
+                    borderColor: '#00b894',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#00b894',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 6
+                },
+                {
+                    label: 'Bekleniyor',
+                    data: pendingData,
+                    borderColor: '#f39c12',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#f39c12',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    borderColor: '#667eea',
+                    borderWidth: 1,
+                    callbacks: {
+                        title: function(context) {
+                            return weeklyData[context[0].dataIndex].Day + ' - ' + weeklyData[context[0].dataIndex].Date;
+                        },
+                        afterLabel: function(context) {
+                            if (context.datasetIndex === 0) {
+                                const completed = weeklyData[context.dataIndex].Completed;
+                                const total = weeklyData[context.dataIndex].Count;
+                                if (total > 0) return `Tamamlanma: %${Math.round((completed / total) * 100)}`;
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false } },
+                x: { grid: { display: false, drawBorder: false } }
+            }
+        }
+    });
+
+    updateWeeklyStats();
+    console.log("✓ Haftalık grafik oluşturuldu");
+}
+
+function updateWeeklyStats() {
+    const total = weeklyData.reduce((sum, d) => sum + d.Count, 0);
+    const average = Math.round(total / weeklyData.length);
+    const maxDay = weeklyData.reduce((max, d) => d.Count > max.Count ? d : max);
+    const minDay = weeklyData.reduce((min, d) => d.Count < min.Count ? d : min);
+
+    document.getElementById('totalAppointments').textContent = total;
+    document.getElementById('averageAppointments').textContent = average;
+    document.getElementById('busyDay').textContent = maxDay.Day;
+    document.getElementById('quietDay').textContent = minDay.Day;
+}
+
+function initDepartmentChart() {
+    if (!departmentData || departmentData.length === 0) {
+        console.warn("Departman verisi yok");
+        return;
+    }
+
+    const ctx = document.getElementById('departmentChart');
+    if (!ctx) {
+        console.warn("departmentChart bulunamadı");
+        return;
+    }
+
+    const labels = departmentData.map(d => d.DepartmentName);
+    const counts = departmentData.map(d => d.Count);
+    const colors = departmentData.map(d => d.Color);
+
+    if (departmentChart) departmentChart.destroy();
+
+    departmentChart = new Chart(ctx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: colors,
+                borderColor: '#fff',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { padding: 15, font: { size: 12, weight: '600' } }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((context.parsed / total) * 100);
+                            return context.label + ': ' + context.parsed + ' (%' + percentage + ')';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    showDepartmentStats();
+    console.log("✓ Departman grafiği oluşturuldu");
+}
+
+function showDepartmentStats() {
+    const statsContainer = document.getElementById('departmentStats');
+    if (!statsContainer) return;
+
+    const total = departmentData.reduce((sum, d) => sum + d.Count, 0);
+
+    let statsHtml = '';
+    departmentData.forEach(dept => {
+        const percentage = Math.round((dept.Count / total) * 100);
+        statsHtml += `
+            <div class="dept-stat-item">
+                <div class="dept-color-box" style="background: ${dept.Color};"></div>
+                <div style="flex-grow: 1;">
+                    <div class="dept-name">${dept.DepartmentName}</div>
+                    <div class="dept-count">${dept.Count} randevu (%${percentage})</div>
+                </div>
+            </div>
+        `;
+    });
+
+    statsContainer.innerHTML = statsHtml;
+}
+
+function initMLChart() {
+    console.log("=== ML CHART BAŞLADI ===");
+
+    var labelsJson = '@Html.Raw(ViewBag.ForecastLabels ?? "[]")';
+    var dataJson = '@Html.Raw(ViewBag.ForecastData ?? "[]")';
+
+    console.log("Labels JSON:", labelsJson.substring(0, 100));
+    console.log("Data JSON:", dataJson.substring(0, 100));
+
+    if (!labelsJson || labelsJson === "[]" || !dataJson || dataJson === "[]") {
+        console.error("❌ ViewBag'den veri gelmedi!");
+        var chartContainer = document.getElementById("mlForecastChart");
+        if (chartContainer && chartContainer.parentElement) {
+            chartContainer.parentElement.innerHTML =
+                "<div class='alert alert-warning text-center p-5'>" +
+                "<i class='fas fa-exclamation-triangle fa-3x mb-3 text-warning'></i>" +
+                "<h5>Analiz için yeterli veri toplanamadı</h5>" +
+                "<p class='mb-0'>Lütfen daha fazla randevu kaydı ekleyin.</p>" +
+                "</div>";
+        }
+        return;
+    }
+
+    try {
+        var labels = JSON.parse(labelsJson);
+        var dataValues = JSON.parse(dataJson);
+
+        console.log("✓ Labels:", labels.length + " adet");
+        console.log("✓ Data:", dataValues.length + " adet");
+
+        if (!Array.isArray(labels) || !Array.isArray(dataValues)) {
+            throw new Error("Veriler array formatında değil!");
+        }
+
+        if (labels.length === 0 || dataValues.length === 0) {
+            throw new Error("Veriler boş!");
+        }
+
+        var ctx = document.getElementById("mlForecastChart");
+        if (!ctx) {
+            throw new Error("Canvas element bulunamadı!");
+        }
+
+        new Chart(ctx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Tahmin Edilen Randevu Sayısı",
+                    data: dataValues,
+                    borderColor: "#667eea",
+                    backgroundColor: "rgba(102, 126, 234, 0.15)",
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: "#667eea",
+                    pointBorderColor: "#fff",
+                    pointBorderWidth: 2,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: { size: 12, weight: '600' },
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 15,
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 13 },
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            title: function(context) {
+                                return '📅 ' + context[0].label;
+                            },
+                            label: function(context) {
+                                const value = Math.round(context.parsed.y);
+                                return '📊 Tahmini Randevu: ' + value + ' adet';
+                            },
+                            afterLabel: function(context) {
+                                const dayIndex = context.dataIndex + 1;
+                                return '🗓️ ' + dayIndex + '. gün tahmini';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Randevu Sayısı',
+                            font: { size: 12, weight: 'bold' }
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return Math.round(value);
+                            },
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Tarih',
+                            font: { size: 12, weight: 'bold' }
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            autoSkip: true,
+                            maxTicksLimit: 15
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // İSTATİSTİKLERİ HESAPLA VE GÖSTER
+        const average = Math.round(dataValues.reduce((a, b) => a + b, 0) / dataValues.length);
+        const maxValue = Math.max(...dataValues);
+        const minValue = Math.min(...dataValues);
+        const maxIndex = dataValues.indexOf(maxValue);
+        const minIndex = dataValues.indexOf(minValue);
+        const total = Math.round(dataValues.reduce((a, b) => a + b, 0));
+
+        document.getElementById('mlAverage').textContent = average;
+        document.getElementById('mlMaxDay').textContent = labels[maxIndex];
+        document.getElementById('mlMinDay').textContent = labels[minIndex];
+        document.getElementById('mlTotal').textContent = total;
+
+        console.log("📊 ML İstatistikler:");
+        console.log(`  Ortalama: ${average}`);
+        console.log(`  En yüksek: ${maxValue.toFixed(2)} (${labels[maxIndex]})`);
+        console.log(`  En düşük: ${minValue.toFixed(2)} (${labels[minIndex]})`);
+        console.log(`  Toplam: ${total}`);
+        console.log("✓✓✓ ML Chart başarıyla oluşturuldu!");
+
+    } catch (error) {
+        console.error("❌ ML Chart Hatası:", error);
+        var chartContainer = document.getElementById("mlForecastChart");
+        if (chartContainer && chartContainer.parentElement) {
+            chartContainer.parentElement.innerHTML =
+                "<div class='alert alert-danger text-center p-5'>" +
+                "<i class='fas fa-times-circle fa-3x mb-3 text-danger'></i>" +
+                "<h5>Grafik oluşturulurken hata</h5>" +
+                "<p class='mb-0'>" + error.message + "</p>" +
+                "</div>";
+        }
+    }
+
+    console.log("=== ML CHART BİTTİ ===");
+}
+
+// TEK BİR DOMContentLoaded İLE HEPSİNİ BAŞLAT
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("🚀 Sayfa yüklendi, grafikler oluşturuluyor...");
+
+    if (typeof Chart === 'undefined') {
+        console.error("❌ Chart.js yüklenmemiş!");
+        return;
+    }
+
+    console.log("✓ Chart.js yüklü, versiyon:", Chart.version);
+
+    try { initWeeklyChart(); } catch (e) { console.error("Haftalık grafik hatası:", e); }
+    try { initDepartmentChart(); } catch (e) { console.error("Departman grafik hatası:", e); }
+    try { initMLChart(); } catch (e) { console.error("ML grafik hatası:", e); }
+
+    console.log("✅ Tüm grafikler işlendi");
+});
+</script>

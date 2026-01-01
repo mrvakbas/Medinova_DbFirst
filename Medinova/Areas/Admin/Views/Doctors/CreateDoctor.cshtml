@@ -1,0 +1,51 @@
+﻿@using Medinova.Models
+@model Doctor
+
+@{
+    ViewBag.Title = "CreateDoctor";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container">
+    <h2>Yeni Doktor Ekle</h2>
+    <hr />
+
+    <form action="/Admin/Doctors/CreateDoctor" method="post">
+
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label for="Fullname">Doktor Adı Soyadı</label>
+                <input type="text" id="Fullname" name="Fullname" class="form-control" placeholder="Ad Soyad giriniz..." required />
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="ImageUrl">Resim Yolu (URL)</label>
+                <input type="text" id="ImageUrl" name="ImageUrl" class="form-control" placeholder="http://..." />
+            </div>
+        </div>
+
+        <div class="form-group col-md-6">
+            <label for="DeparmantId">Departman Seçin</label>
+            <select id="DepartmentId" name="DepartmentId" class="form-control" required>
+                <option value="">-- Departman Seçiniz --</option>
+                @foreach (var dept in (List<Medinova.Models.Department>)ViewBag.Departments)
+                {
+                    <option value="@dept.DepartmentId">@dept.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="row" style="margin-top:15px;">
+            <div class="form-group col-md-12">
+                <label for="description">Doktor Hakkında Açıklama</label>
+                <textarea id="description" name="description" class="form-control" rows="4"></textarea>
+            </div>
+        </div>
+
+        <div style="margin-top:20px;">
+            <button type="submit" class="btn btn-success">Doktoru Kaydet</button>
+            <a href="/Admin/Doctors/Index" class="btn btn-secondary">Listeye Dön</a>
+        </div>
+
+    </form>
+</div>
