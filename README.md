@@ -69,3 +69,8 @@ Güvenlik ve takip amacıyla; giriş/çıkış, ekleme ve silme işlemlerinin tu
 <img width="1600" height="731" alt="6loginSayfası" src="https://github.com/user-attachments/assets/ece6cce9-2b28-4429-a0ff-d8e3ef726b39" />
 <img width="1600" height="731" alt="11Authorize" src="https://github.com/user-attachments/assets/0fbdb208-42a7-425a-8e34-f46eeeb3f838" />
 
+### 👨‍💻 Geliştirici
+
+**[Merve AKBAŞ]**
+* LinkedIn: [https://www.linkedin.com/in/mrvakbass/]
+* GitHub: [https://github.com/mrvakbas]
