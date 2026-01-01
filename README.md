@@ -62,10 +62,12 @@ Güvenlik ve takip amacıyla; giriş/çıkış, ekleme ve silme işlemlerinin tu
 <img width="1600" height="1156" alt="8 Loglama" src="https://github.com/user-attachments/assets/dd47511a-fa96-4272-890b-fe68a1fa0526" />
 
 ### 5.Doktor ve Hasta Panelleri
+Sistemdeki doktorların ve hastaların ayrı ayrı panelleri
 <img width="1600" height="862" alt="9Doctor paneli" src="https://github.com/user-attachments/assets/71b85d6a-9b8b-489e-bc57-269b2fcf1810" />
 <img width="1600" height="731" alt="10Hasta_Panel," src="https://github.com/user-attachments/assets/f0f56cbb-490d-4d7c-8c63-926e7d29de7e" />
 
 ### 6.Login ve Yetkisiz Erişim Sayfaları
+Giriş Sayfası ve 403(Yetkisi Olmayan) Sayfası
 <img width="1600" height="731" alt="6loginSayfası" src="https://github.com/user-attachments/assets/ece6cce9-2b28-4429-a0ff-d8e3ef726b39" />
 <img width="1600" height="731" alt="11Authorize" src="https://github.com/user-attachments/assets/0fbdb208-42a7-425a-8e34-f46eeeb3f838" />
 
